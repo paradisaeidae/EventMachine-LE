@@ -88,13 +88,11 @@ class TestHttpClient2 < Test::Unit::TestCase
     EM.run {
       http = silent { EM::P::HttpClient2.connect "google.com", 80 }
       d = http.get("/")
-      d.callback {
-        headers = d.headers
-      }
+      puts d.headers.inspect
+      d.callback { headers = d.headers }
       e = http.get("/")
-      e.callback {
-        headers2 = e.headers
-      }
+      puts e.headers.inspect
+      e.callback {  headers2 = e.headers }
       EM.tick_loop { EM.stop if headers && headers2 }
       EM.add_timer(1) { EM.stop }
     }
