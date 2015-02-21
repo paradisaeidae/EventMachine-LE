@@ -20,10 +20,6 @@ See the file COPYING for complete licensing information.
 // THIS ENTIRE FILE WILL EVENTUALLY BE FOR UNIX BUILDS ONLY.
 //#ifdef OS_UNIX
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-
 #include "project.h"
 
 
@@ -790,7 +786,7 @@ SelectData_t::SelectData_t()
 _SelectDataSelect
 *****************/
 
-#ifdef HAVE_TBR
+#if defined(HAVE_TBR) || defined(HAVE_RB_THREAD_CALL_WITHOUT_GVL)
 static VALUE _SelectDataSelect (void *v)
 {
 	SelectData_t *sd = (SelectData_t*)v;
@@ -805,12 +801,13 @@ SelectData_t::_Select
 
 int SelectData_t::_Select()
 {
-	#ifdef HAVE_TBR
+	#if defined(HAVE_RB_THREAD_CALL_WITHOUT_GVL)
+	rb_thread_call_without_gvl ((void *(*)(void *))_SelectDataSelect, (void*)this, RUBY_UBF_IO, 0);
+	return nSockets;
+	#elif defined(HAVE_TBR)
 	rb_thread_blocking_region (_SelectDataSelect, (void*)this, RUBY_UBF_IO, 0);
 	return nSockets;
-	#endif
-
-	#ifndef HAVE_TBR
+	#else
 	return EmSelect (maxsocket+1, &fdreads, &fdwrites, &fderrors, &tv);
 	#endif
 }
