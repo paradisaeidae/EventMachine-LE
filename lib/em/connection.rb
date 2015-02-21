@@ -426,7 +426,7 @@ module EventMachine
       [priv_key, cert_chain].each do |file|
         next if file.nil? or file.empty?
         raise FileNotFoundException,
-        "Could not find #{file} for start_tls" unless File.exists? file
+        "Could not find #{file} for start_tls" unless File.exist? file
       end
 
       # Backward compatibility with version 1.1.3:
