@@ -420,29 +420,31 @@ module EventMachine
     # just filenames.
     #
     # @see #ssl_verify_peer
-    def start_tls args={}
-      priv_key, cert_chain, verify_peer, ssl_version, cipher_list = args.values_at(:private_key_file, :cert_chain_file, :verify_peer, :ssl_version, :cipher_list)
+def start_tls args={}
+ priv_key, cert_chain, verify_peer, ssl_version, cipher_list = args.values_at(:private_key_file, :cert_chain_file, :verify_peer, :ssl_version, :cipher_list)
+ [priv_key, cert_chain].each do |file|
+  next if file.nil? or file.empty?
+  raise FileNotFoundException,
+  "Could not find #{file} for start_tls" unless File.exist? file end
 
-      [priv_key, cert_chain].each do |file|
-        next if file.nil? or file.empty?
-        raise FileNotFoundException,
-        "Could not find #{file} for start_tls" unless File.exist? file
-      end
+ # Backward compatibility with version 1.1.3:
+ ssl_version = :TLSv1  if args[:use_tls] and not ssl_version
+ ssl_versionsPossible = ' :SSLv23  :SSLv3   :TLSv1   :TLSv1_1 :TLSv1_2 '
+ puts "Available ssl_versions: #{ssl_versionsPossible}"
 
-      # Backward compatibility with version 1.1.3:
-      ssl_version = :TLSv1  if args[:use_tls] and not ssl_version
+ ssl_version = case ssl_version
+  when nil     ; 2
+  when :SSLv23    ; 0
+  when :SSLv3      ; 1
+  when :TLSv1      ; 2
+  when :TLSv1_1  ; 3
+  when :TLSv1_2  ; 4
+  else
+   require 'pry';binding.pry
+  raise "invalid value #{ssl_version.inspect} for :ssl_version" end
 
-      ssl_version = case ssl_version
-        when nil     ; 0
-        when :SSLv23 ; 0
-        when :SSLv3  ; 1
-        when :TLSv1  ; 2
-        else         ; raise "invalid value #{ssl_version.inspect} for :ssl_version"
-      end
-
-      EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer, ssl_version, cipher_list || '')
-      EventMachine::start_tls @signature
-    end
+  EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer, ssl_version, cipher_list || '')
+  EventMachine::start_tls @signature end
 
     # If [TLS](http://en.wikipedia.org/wiki/Transport_Layer_Security) is active on the connection, returns the remote [X509 certificate](http://en.wikipedia.org/wiki/X.509)
     # as a string, in the popular [PEM format](http://en.wikipedia.org/wiki/Privacy_Enhanced_Mail). This can then be used for arbitrary validation
