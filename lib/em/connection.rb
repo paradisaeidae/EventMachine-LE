@@ -429,8 +429,6 @@ def start_tls args={}
 
  # Backward compatibility with version 1.1.3:
  ssl_version = :TLSv1  if args[:use_tls] and not ssl_version
- ssl_versionsPossible = ' :SSLv23  :SSLv3   :TLSv1   :TLSv1_1 :TLSv1_2 '
- puts "Available ssl_versions: #{ssl_versionsPossible}"
 
  ssl_version = case ssl_version
   when nil     ; 2
@@ -440,7 +438,6 @@ def start_tls args={}
   when :TLSv1_1  ; 3
   when :TLSv1_2  ; 4
   else
-   require 'pry';binding.pry
   raise "invalid value #{ssl_version.inspect} for :ssl_version" end
 
   EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer, ssl_version, cipher_list || '')
