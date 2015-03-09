@@ -159,13 +159,22 @@ SslContext_t::SslContext_t (bool is_server, const string &privkeyfile, const str
           case 2:
             pCtx = SSL_CTX_new (is_server ? TLSv1_server_method() : TLSv1_client_method());
             break;
+          /* TLSv1_1 */
+          case 3:
+            pCtx = SSL_CTX_new (is_server ? TLSv1_1_server_method() : TLSv1_1_client_method());
+            break;
+          /* TLSv1_2 */
+          case 4:
+            pCtx = SSL_CTX_new (is_server ? TLSv1_2_server_method() : TLSv1_2_client_method());
+            break;
         };
 
 	if (!pCtx)
 		throw std::runtime_error ("no SSL context");
 
-	SSL_CTX_set_options (pCtx, SSL_OP_ALL);
-	//SSL_CTX_set_options (pCtx, (SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3));
+	//SSL_CTX_set_options (pCtx, SSL_OP_ALL);
+	SSL_CTX_set_options (pCtx, (SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3));
+	
 #ifdef SSL_MODE_RELEASE_BUFFERS
 	SSL_CTX_set_mode (pCtx, SSL_MODE_RELEASE_BUFFERS);
 #endif
