@@ -459,7 +459,7 @@ def start_tls args={}
   else
   raise "invalid value #{ssl_version.inspect} for :ssl_version" end
 
-  EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer, ssl_version, cipher_list || '')
+ # EventMachine::set_tls_parms(@signature, priv_key || '', cert_chain || '', verify_peer, ssl_version, cipher_list || '')
  EventMachine::start_tls @signature end
 
     # If [TLS](http://en.wikipedia.org/wiki/Transport_Layer_Security) is active on the connection, returns the remote [X509 certificate](http://en.wikipedia.org/wiki/X.509)
