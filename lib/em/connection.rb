@@ -376,14 +376,13 @@ module EventMachine
     end
     
 def set_tls_parms args={}
- priv_key, cert_chain, verify_peer, ssl_version, cipher_list = args.values_at(:private_key_file, :cert_chain_file, :verify_peer, :ssl_version, :cipher_list)
+ priv_key, cert_chain, verify_peer, ssl_version, cipher_list =\
+ 	 args.values_at(:private_key_file, :cert_chain_file, :verify_peer, :ssl_version, :cipher_list)
  [priv_key, cert_chain].each do |file|
   next if file.nil? or file.empty?
-  raise FileNotFoundException,
-  "Could not find #{file} for start_tls" unless File.exist? file end
-
+  raise FileNotFoundException, "Could not find #{file} for start_tls" unless File.exist? file end
+ raise 'Space in cipher_list not good' if cipher_list.include? ' '
  ssl_version = :TLSv1  if args[:use_tls] and not ssl_version
-
  ssl_version = case ssl_version
  when nil             ; 2
  when :SSLv23    ; 0
